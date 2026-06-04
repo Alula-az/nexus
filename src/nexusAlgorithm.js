@@ -1,23 +1,9 @@
-// nexusAlgorithm.js - NEXUS Trading Algorithm Implementation
+// nexusAlgorithm.js - NEXUS Trading Algorithm Implementation (CLEAN VERSION)
 
 class NEXUSAlgorithm {
   constructor() {
     this.name = "NEXUS Algorithm™";
     this.version = "1.0.0";
-  }
-
-  // Calculate Simple Moving Average
-  calculateSMA(data, period) {
-    const smas = [];
-    for (let i = 0; i < data.length; i++) {
-      if (i < period - 1) {
-        smas.push(null);
-      } else {
-        const sum = data.slice(i - period + 1, i + 1).reduce((a, b) => a + b, 0);
-        smas.push(sum / period);
-      }
-    }
-    return smas;
   }
 
   // Calculate Exponential Moving Average
@@ -65,7 +51,6 @@ class NEXUSAlgorithm {
     const ema12 = this.calculateEMA(data, fast);
     const ema26 = this.calculateEMA(data, slow);
     const macdLine = [];
-    const signalLine = [];
     const histogram = [];
 
     // MACD Line = EMA12 - EMA26
@@ -79,16 +64,16 @@ class NEXUSAlgorithm {
 
     // Signal Line = EMA of MACD
     const validMACD = macdLine.filter(m => m !== null);
-    if (validMACD.length > 0) {
-      const signalEMA = this.calculateEMA(validMACD, signal);
-      let signalIndex = 0;
-      for (let i = 0; i < macdLine.length; i++) {
-        if (macdLine[i] !== null) {
-          signalLine.push(signalEMA[signalIndex] || null);
-          signalIndex++;
-        } else {
-          signalLine.push(null);
-        }
+    const signalEMA = validMACD.length > 0 ? this.calculateEMA(validMACD, signal) : [];
+    
+    let signalIndex = 0;
+    const signalLine = [];
+    for (let i = 0; i < macdLine.length; i++) {
+      if (macdLine[i] !== null) {
+        signalLine.push(signalEMA[signalIndex] || null);
+        signalIndex++;
+      } else {
+        signalLine.push(null);
       }
     }
 
@@ -129,15 +114,41 @@ class NEXUSAlgorithm {
     return atrs;
   }
 
+  // Calculate Bollinger Bands
+  calculateBollingerBands(closes, period = 20, stdDev = 2) {
+    const bands = [];
+    
+    for (let i = 0; i < closes.length; i++) {
+      if (i < period - 1) {
+        bands.push(null);
+        continue;
+      }
+
+      const subset = closes.slice(i - period + 1, i + 1);
+      const mean = subset.reduce((a, b) => a + b, 0) / period;
+      const variance = subset.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / period;
+      const std = Math.sqrt(variance);
+
+      bands.push({
+        upper: mean + (std * stdDev),
+        middle: mean,
+        lower: mean - (std * stdDev)
+      });
+    }
+
+    return bands;
+  }
+
   // Detect Trend Direction
-  detectTrend(closes, ema200Index) {
+  detectTrend(closes) {
+    const ema200 = this.calculateEMA(closes, 200);
     const lastClose = closes[closes.length - 1];
-    const ema200 = ema200Index[ema200Index.length - 1];
+    const lastEMA200 = ema200[ema200.length - 1];
 
-    if (!ema200) return "NEUTRAL";
+    if (!lastEMA200) return "NEUTRAL";
 
-    if (lastClose > ema200) return "BULLISH";
-    if (lastClose < ema200) return "BEARISH";
+    if (lastClose > lastEMA200) return "BULLISH";
+    if (lastClose < lastEMA200) return "BEARISH";
     return "NEUTRAL";
   }
 
@@ -180,32 +191,6 @@ class NEXUSAlgorithm {
     };
   }
 
-  // Calculate Bollinger Bands
-  calculateBollingerBands(closes, period = 20, stdDev = 2) {
-    const sma = this.calculateSMA(closes, period);
-    const bands = [];
-
-    for (let i = 0; i < closes.length; i++) {
-      if (i < period - 1 || !sma[i]) {
-        bands.push(null);
-        continue;
-      }
-
-      const subset = closes.slice(i - period + 1, i + 1);
-      const mean = subset.reduce((a, b) => a + b, 0) / period;
-      const variance = subset.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / period;
-      const std = Math.sqrt(variance);
-
-      bands.push({
-        upper: sma[i] + (std * stdDev),
-        middle: sma[i],
-        lower: sma[i] - (std * stdDev)
-      });
-    }
-
-    return bands;
-  }
-
   // Main Signal Generation
   generateSignal(chartData) {
     try {
@@ -239,14 +224,14 @@ class NEXUSAlgorithm {
       let technicalScore = 0;
 
       // Trend Alignment (0-10)
-      const trend = this.detectTrend(closes,);
+      const trend = this.detectTrend(closes);
       if (trend === "BULLISH") technicalScore += 10;
       else if (trend === "BEARISH") technicalScore -= 5;
       else technicalScore += 3;
 
       // Support/Resistance (0-10)
-      if (lastBands && lastClose < lastBands.lower) technicalScore += 8; // Oversold
-      if (lastBands && lastClose > lastBands.upper) technicalScore += 5; // Overbought
+      if (lastBands && lastClose < lastBands.lower) technicalScore += 8;
+      if (lastBands && lastClose > lastBands.upper) technicalScore += 5;
       if (lastBands && lastClose > lastBands.lower && lastClose < lastBands.upper) technicalScore += 3;
 
       // ===== LAYER 2: MOMENTUM SCORE (0-25) =====
@@ -259,7 +244,7 @@ class NEXUSAlgorithm {
       else momentumScore += 3;
 
       // MACD (0-8)
-      if (lastHistogram > 0 && lastHistogram > lastHistogram - 0.01) momentumScore += 8;
+      if (lastHistogram > 0 && lastHistogram > (histogram[histogram.length - 2] || 0)) momentumScore += 8;
       else if (lastHistogram > 0) momentumScore += 5;
       else momentumScore += 2;
 
@@ -277,8 +262,6 @@ class NEXUSAlgorithm {
       else orderFlowScore += 2;
 
       // ===== LAYER 4: SENTIMENT SCORE (0-15) =====
-      // In production, this would fetch real news sentiment
-      // For now, we'll use a placeholder
       const sentimentScore = 8; // Neutral assumption
 
       // ===== CALCULATE FINAL CONFIDENCE =====
@@ -293,7 +276,7 @@ class NEXUSAlgorithm {
       else if (confidence < 30) signal = "NO_SIGNAL";
 
       // Calculate Support/Resistance
-      const volatility = lastATR * 2;
+      const volatility = (lastATR || 1) * 2;
       const stopLoss = lastLow - volatility;
       const target1 = lastClose + (volatility * 1.5);
       const target2 = lastClose + (volatility * 2.5);
