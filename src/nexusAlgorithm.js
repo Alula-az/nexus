@@ -234,13 +234,13 @@ class NEXUSAlgorithm {
       const lastLow = lows[lows.length - 1];
       const lastRSI = rsi[rsi.length - 1];
       const lastMACD = macdLine[macdLine.length - 1];
-      const lastSignal = signalLine[signalLine.length - 1];
+      //const lastSignal = signalLine[signalLine.length - 1];
       const lastHistogram = histogram[histogram.length - 1];
       const lastATR = atr[atr.length - 1];
       const lastBands = bands[bands.length - 1];
-      const lastEMA200 = ema200[ema200.length - 1];
-      const lastEMA50 = ema50[ema50.length - 1];
-      const lastEMA20 = ema20[ema20.length - 1];
+      //const lastEMA200 = ema200[ema200.length - 1];
+      //const lastEMA50 = ema50[ema50.length - 1];
+      //const lastEMA20 = ema20[ema20.length - 1];
 
       // ===== LAYER 1: TECHNICAL SCORE (0-25) =====
       let technicalScore = 0;
