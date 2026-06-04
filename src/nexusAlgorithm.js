@@ -222,7 +222,7 @@ class NEXUSAlgorithm {
       // Calculate Indicators
       const ema200 = this.calculateEMA(closes, 200);
       const rsi = this.calculateRSI(closes, 14);
-      const { macdLine, signalLine, histogram } = this.calculateMACD(closes);
+      const { macdLine, histogram } = this.calculateMACD(closes);
       const atr = this.calculateATR(highs, lows, closes, 14);
       const bands = this.calculateBollingerBands(closes, 20, 2);
 
@@ -235,7 +235,6 @@ class NEXUSAlgorithm {
       const lastHistogram = histogram[histogram.length - 1];
       const lastATR = atr[atr.length - 1];
       const lastBands = bands[bands.length - 1];
-      const lastEMA200 = ema200[ema200.length - 1];
 
       // ===== LAYER 1: TECHNICAL SCORE (0-25) =====
       let technicalScore = 0;
