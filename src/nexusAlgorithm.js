@@ -222,9 +222,9 @@ class NEXUSAlgorithm {
       // Calculate Indicators
       //const ema20 = this.calculateEMA(closes, 20);
       //const ema50 = this.calculateEMA(closes, 50);
-      const ema200 = this.calculateEMA(closes, 200);
+      // const ema200 = this.calculateEMA(closes, 200);
       const rsi = this.calculateRSI(closes, 14);
-      const { macdLine, signalLine, histogram } = this.calculateMACD(closes);
+      const { macdLine, histogram } = this.calculateMACD(closes);
       const atr = this.calculateATR(highs, lows, closes, 14);
       const bands = this.calculateBollingerBands(closes, 20, 2);
 
@@ -234,7 +234,7 @@ class NEXUSAlgorithm {
       const lastLow = lows[lows.length - 1];
       const lastRSI = rsi[rsi.length - 1];
       const lastMACD = macdLine[macdLine.length - 1];
-      //const lastSignal = signalLine[signalLine.length - 1];
+      // const lastSignal = signalLine[signalLine.length - 1];
       const lastHistogram = histogram[histogram.length - 1];
       const lastATR = atr[atr.length - 1];
       const lastBands = bands[bands.length - 1];
