@@ -220,7 +220,6 @@ class NEXUSAlgorithm {
       }
 
       // Calculate Indicators
-      const ema200 = this.calculateEMA(closes, 200);
       const rsi = this.calculateRSI(closes, 14);
       const { macdLine, histogram } = this.calculateMACD(closes);
       const atr = this.calculateATR(highs, lows, closes, 14);
