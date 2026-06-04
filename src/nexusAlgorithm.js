@@ -220,8 +220,8 @@ class NEXUSAlgorithm {
       }
 
       // Calculate Indicators
-      const ema20 = this.calculateEMA(closes, 20);
-      const ema50 = this.calculateEMA(closes, 50);
+      //const ema20 = this.calculateEMA(closes, 20);
+      //const ema50 = this.calculateEMA(closes, 50);
       const ema200 = this.calculateEMA(closes, 200);
       const rsi = this.calculateRSI(closes, 14);
       const { macdLine, signalLine, histogram } = this.calculateMACD(closes);
@@ -238,7 +238,7 @@ class NEXUSAlgorithm {
       const lastHistogram = histogram[histogram.length - 1];
       const lastATR = atr[atr.length - 1];
       const lastBands = bands[bands.length - 1];
-      //const lastEMA200 = ema200[ema200.length - 1];
+      const lastEMA200 = ema200[ema200.length - 1];
       //const lastEMA50 = ema50[ema50.length - 1];
       //const lastEMA20 = ema20[ema20.length - 1];
 
